@@ -5,9 +5,11 @@ import (
 	"net/http"
 	"time"
 
+	tutorial "github.com/danielsonng/ecomgo/internal/adapters/postgresql/sqlc"
 	"github.com/danielsonng/ecomgo/internal/products"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/jackc/pgx/v5"
 )
 
 // mount
@@ -29,9 +31,10 @@ func (app *application) mount() http.Handler {
 		w.Write([]byte("Heal Thy"))
 	})
 
-	productService := products.NewService()
+	productService := products.NewService(tutorial.New(app.db))
 	productHandler := products.NewHandler(productService)
 	r.Get("/products", productHandler.ListProducts)
+	r.Get("/product/{id}", productHandler.GetProductById)
 
 	return r
 }
@@ -55,7 +58,7 @@ type application struct {
 	config config
 	//logger
 	//db driver
-
+	db *pgx.Conn
 }
 
 type config struct {

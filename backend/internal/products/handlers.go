@@ -3,6 +3,7 @@ package products
 import (
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/danielsonng/ecomgo/internal/json"
 )
@@ -18,16 +19,30 @@ func NewHandler(service Service) *handler {
 }
 
 func (h *handler) ListProducts(w http.ResponseWriter, r *http.Request) {
-	err := h.service.ListProducts(r.Context())
+	products, err := h.service.ListProducts(r.Context())
 	if err != nil {
 		log.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	// 1. Call service
-	products := []string{"Hello", "Wood"}
-	// 2. Return JSON in a HTTP Res
-
 	json.Write(w, http.StatusOK, products)
+}
+
+func (h *handler) GetProductById(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	idInt, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		// Handle the error (e.g., return a 400 Bad Request)
+		http.Error(w, "Invalid product ID", http.StatusBadRequest)
+		return
+	}
+	product, err := h.service.GetProductById(r.Context(), idInt)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	json.Write(w, http.StatusOK, product)
 }
