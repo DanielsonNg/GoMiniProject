@@ -3,27 +3,27 @@ package products
 import (
 	"context"
 
-	tutorial "github.com/danielsonng/ecomgo/internal/adapters/postgresql/sqlc"
+	repo "github.com/danielsonng/ecomgo/internal/adapters/postgresql/sqlc"
 )
 
 type Service interface {
-	ListProducts(ctx context.Context) ([]tutorial.Product, error)
-	GetProductById(ctx context.Context, id int64) (tutorial.Product, error)
+	ListProducts(ctx context.Context) ([]repo.Product, error)
+	GetProductById(ctx context.Context, id int64) (repo.Product, error)
 }
 
 type svc struct {
 	// repo
-	repo tutorial.Querier
+	repo repo.Querier
 }
 
-func NewService(repo tutorial.Querier) Service {
+func NewService(repo repo.Querier) Service {
 	return &svc{repo: repo}
 }
 
-func (s *svc) ListProducts(ctx context.Context) ([]tutorial.Product, error) {
+func (s *svc) ListProducts(ctx context.Context) ([]repo.Product, error) {
 	return s.repo.ListProducts(ctx)
 }
 
-func (s *svc) GetProductById(ctx context.Context, id int64) (tutorial.Product, error) {
+func (s *svc) GetProductById(ctx context.Context, id int64) (repo.Product, error) {
 	return s.repo.FindProductByID(ctx, id)
 }

@@ -5,7 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	tutorial "github.com/danielsonng/ecomgo/internal/adapters/postgresql/sqlc"
+	repo "github.com/danielsonng/ecomgo/internal/adapters/postgresql/sqlc"
+	"github.com/danielsonng/ecomgo/internal/orders"
 	"github.com/danielsonng/ecomgo/internal/products"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -31,10 +32,14 @@ func (app *application) mount() http.Handler {
 		w.Write([]byte("Heal Thy"))
 	})
 
-	productService := products.NewService(tutorial.New(app.db))
+	productService := products.NewService(repo.New(app.db))
 	productHandler := products.NewHandler(productService)
 	r.Get("/products", productHandler.ListProducts)
 	r.Get("/product/{id}", productHandler.GetProductById)
+
+	orderService := orders.NewService(repo.New(app.db), app.db)
+	orderHandler := orders.NewHandler(orderService)
+	r.Post("/orders", orderHandler.PlaceOrder)
 
 	return r
 }
